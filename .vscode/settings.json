@@ -3,6 +3,10 @@
         "json.h": "c",
         "stdio.h": "c",
         "stdlib.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "tuple": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }

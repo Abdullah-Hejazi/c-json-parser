@@ -16,7 +16,7 @@ typedef struct {
     char* key;
 
     // char* string;
-    // float* number;
+    // double* number;
     // bool* boolean;
     // Object* object;
 
@@ -33,6 +33,7 @@ typedef struct {
 
 
 char* read_file(char*);
-void parse_json(char*);
+Pair parse_json(char*);
+void print_pair(Pair pair);
 
 #endif

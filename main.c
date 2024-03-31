@@ -2,7 +2,9 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-    parse_json("data/test1.json");
+    Pair pair = parse_json("data/test11.json");
+
+    print_pair(pair);
 
     return 0;
 }
