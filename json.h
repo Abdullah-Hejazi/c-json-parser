@@ -20,19 +20,19 @@ typedef struct {
 } Pair;
 
 typedef struct {
-    Pair* pairs;
+    Pair** pairs;
     int count;
 } Object;
 
 typedef struct {
-    Pair* pairs;
+    Pair** pairs;
     int count;
 } Array;
 
 
 char* read_file(char*);
-Pair parse_json(char*);
-void print_pair(Pair pair, int padding);
-Pair parse_type(char* data, char* key, int* cursor);
+Pair* parse_json(char*);
+void print_pair(Pair* pair, int padding);
+Pair* parse_type(char* data, char* key, int* cursor);
 
 #endif

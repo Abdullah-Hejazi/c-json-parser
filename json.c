@@ -37,55 +37,55 @@ void print_padding(int padding) {
     }
 }
 
-void print_pair(Pair pair, int padding) {
-    if (pair.key != NULL) {
+void print_pair(Pair* pair, int padding) {
+    if (pair->key != NULL) {
         print_padding(padding);
 
-        printf("%s = ", pair.key);
+        printf("%s = ", pair->key);
     }
 
-    if (pair.type == NONE) {
+    if (pair->type == NONE) {
         printf("null");
     }
 
-    else if (pair.type == STRING) {
-        char* string = (char*)pair.value;
+    else if (pair->type == STRING) {
+        char* string = (char*)pair->value;
         printf("\"%s\"", string);
     }
 
-    else if (pair.type == NUMBER) {
-        double number = *((double*)pair.value);
+    else if (pair->type == NUMBER) {
+        double number = *((double*)pair->value);
         printf("%f", number);
     }
 
-    else if (pair.type == OBJECT) {
+    else if (pair->type == OBJECT) {
         printf("OBJECT {\n");
         padding++;
 
-        for(int i = 0; i < (*((Object*)pair.value)).count; i++) {
+        for(int i = 0; i < (*((Object*)pair->value)).count; i++) {
             printf("\t");
-            print_pair((*((Object*)pair.value)).pairs[i], padding);
+            print_pair((*((Object*)pair->value)).pairs[i], padding);
         }
 
         print_padding(padding);
         printf("}");
     }
 
-    else if (pair.type == ARRAY) {
+    else if (pair->type == ARRAY) {
         printf("ARRAY [\n");
         padding++;
 
-        for(int i = 0; i < (*((Array*)pair.value)).count; i++) {
+        for(int i = 0; i < (*((Array*)pair->value)).count; i++) {
             printf("\t");
-            print_pair((*((Array*)pair.value)).pairs[i], padding);
+            print_pair((*((Array*)pair->value)).pairs[i], padding);
         }
 
         print_padding(padding);
         printf("]");
     }
 
-    else if (pair.type == BOOLEAN) {
-        if (*((bool*)pair.value) == 0) {
+    else if (pair->type == BOOLEAN) {
+        if (*((bool*)pair->value) == 0) {
             printf("false");
         } else {
             printf("true");
@@ -93,7 +93,7 @@ void print_pair(Pair pair, int padding) {
     }
 
 
-    // printf("\t// %s\n", get_type_string(pair.type));
+    // printf("\t// %s\n", get_type_string(pair->type));
     printf("\n");
 }
 
@@ -177,7 +177,7 @@ Object* parse_object(char* data, int* cursor) {
 
         if (data[*cursor] == ':' && inKey) {
             *cursor += 1;
-            Pair pair = parse_type(data, key, cursor);
+            Pair* pair = parse_type(data, key, cursor);
 
             if (object->pairs == NULL) {
                 object->pairs = malloc(sizeof(Pair));
@@ -215,7 +215,7 @@ Array* parse_array(char* data, int* cursor) {
             *cursor += 1;
         }
 
-        Pair pair = parse_type(data, NULL, cursor);
+        Pair* pair = parse_type(data, NULL, cursor);
 
         if (array->pairs == NULL) {
             array->pairs = malloc(sizeof(Pair));
@@ -231,51 +231,51 @@ Array* parse_array(char* data, int* cursor) {
     return array;
 }
 
-Pair parse_type(char* data, char* key, int* cursor) {
-    Pair result;
-    result.key = key;
+Pair* parse_type(char* data, char* key, int* cursor) {
+    Pair* result = malloc(sizeof(Pair));
+    result->key = key;
 
     while(*cursor < strlen(data)) {
         if (data[*cursor] == '{') {
-            result.value = parse_object(data, cursor);
-            result.type = OBJECT;
+            result->value = parse_object(data, cursor);
+            result->type = OBJECT;
             break;
         } else if (data[*cursor] == '[') {
-            result.value = parse_array(data, cursor);
-            result.type = ARRAY;
+            result->value = parse_array(data, cursor);
+            result->type = ARRAY;
             break;
         } else if (data[*cursor] == '"') {
-            result.value = parse_string(data, cursor);
-            result.type = STRING;
+            result->value = parse_string(data, cursor);
+            result->type = STRING;
             break;
         } else if (data[*cursor] == 'n') {
             *cursor += 4;
 
-            result.value = NULL;
-            result.type = NONE;
+            result->value = NULL;
+            result->type = NONE;
             break;
         } else if (data[*cursor] == 't') {
             *cursor += 4;
             bool* value = malloc(sizeof(bool));
             *value = 1;
             
-            result.value = value;
-            result.type = BOOLEAN;
+            result->value = value;
+            result->type = BOOLEAN;
             break;
         } else if (data[*cursor] == 'f') {
             *cursor += 5;
             bool* value = malloc(sizeof(bool));
             *value = 0;
             
-            result.value = value;
-            result.type = BOOLEAN;
+            result->value = value;
+            result->type = BOOLEAN;
             break;
         } else if (data[*cursor] >= 48 && data[*cursor] <= 57) {
             double* value = malloc(sizeof(double));
             *value = parse_number(data, cursor);
             
-            result.value = value;
-            result.type = NUMBER;
+            result->value = value;
+            result->type = NUMBER;
             break;
         }
 
@@ -285,7 +285,7 @@ Pair parse_type(char* data, char* key, int* cursor) {
     return result;
 }
 
-Pair parse_json(char* filename) {
+Pair* parse_json(char* filename) {
     char* data = read_file(filename);
 
     int cursor = 0;
