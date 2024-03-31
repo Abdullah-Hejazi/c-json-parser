@@ -2,9 +2,7 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-    Type type = ARRAY;
-
-    printf("%d\n", type);
+    parse_json("data/test1.json");
 
     return 0;
 }
