@@ -14,12 +14,6 @@ typedef enum {
 
 typedef struct {
     char* key;
-
-    // char* string;
-    // double* number;
-    // bool* boolean;
-    // Object* object;
-
     void* value;
 
     Type type;
@@ -27,13 +21,18 @@ typedef struct {
 
 typedef struct {
     Pair* pairs;
-
-    bool isArray;
+    int count;
 } Object;
+
+typedef struct {
+    Pair* pairs;
+    int count;
+} Array;
 
 
 char* read_file(char*);
 Pair parse_json(char*);
-void print_pair(Pair pair);
+void print_pair(Pair pair, int padding);
+Pair parse_type(char* data, char* key, int* cursor);
 
 #endif

@@ -2,5 +2,13 @@
     "hi",
     5,
     "",
-    2.2
+    2.2,
+    null,
+    {
+        "name": "user 1",
+        "age": 15,
+        "block": "some block",
+        "valid": true,
+        "invalid": false
+    }
 ]
