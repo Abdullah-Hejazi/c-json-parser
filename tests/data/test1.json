@@ -4,7 +4,7 @@
     "phone": "1234567890",
     "age": 25,
     "test": null,
-    "hola": 15,
+    "hola": true,
     "new": {
         "user": "xx",
         "age": 11
