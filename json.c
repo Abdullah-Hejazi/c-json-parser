@@ -68,13 +68,13 @@ void print_pair(Pair* pair, int padding) {
         printf("OBJECT {\n");
         padding++;
 
-        // for(int i = 0; i < (*((Object*)pair->value)).count; i++) {
-        //     printf("\t");
-        //     print_pair((*((Object*)pair->value)).pairs[i], padding);
-        // }
+        for(int i = 0; i < (*((Object*)pair->value)).count; i++) {
+            printf("\t");
+            print_pair((*((Object*)pair->value)).pairs[i], padding);
+        }
 
-        // print_padding(padding);
-        // printf("}");
+        print_padding(padding);
+        printf("}(%d)", (*((Object*)pair->value)).count);
     }
 
     else if (pair->type == ARRAY) {
@@ -160,46 +160,54 @@ char* parse_string(char* data, int* cursor) {
     return result;
 }
 
+char* get_key(char* data, int* cursor) {
+    while(*cursor < strlen(data)) {
+        if (data[*cursor] == '"') {
+            return parse_string(data, cursor);
+        }
+
+        if (data[*cursor] == '}') {
+            return NULL;
+        }
+
+        *cursor += 1;
+    }
+
+    return NULL;
+}
+
 Object* parse_object(char* data, int* cursor) {
     *cursor += 1;
 
     Object* object = malloc(sizeof(Object));
     object->count = 0;
 
-    bool inKey = 0;
-    char * key;
-
     while (*cursor < strlen(data)) {
-        if (data[*cursor] == '}') {
-            *cursor += 1;
+        char* key = get_key(data, cursor);
+
+        if (key == NULL) {
             break;
         }
 
-        if (data[*cursor] == '"') {
-            inKey = 1;
-            object->count += 1;
-            key = parse_string(data, cursor);
+        Pair* pair = parse_type(data, key, cursor);
+
+        if (pair == NULL) {
+            printf("Found key: [%s] but without a value !!", key);
+            exit(1);
         }
 
-        if (data[*cursor] == ':' && inKey) {
-            *cursor += 1;
-            Pair* pair = parse_type(data, key, cursor);
+        object->count += 1;
 
-            if (object->count == 1) {
-                object->pairs = malloc(sizeof(Pair));
-            } else {
-                object->pairs = realloc(object->pairs, object->count * sizeof(Pair));
-            }
-
-            object->pairs[object->count - 1] = pair;
+        if (object->count == 1) {
+            object->pairs = malloc(sizeof(Pair));
+        } else {
+            object->pairs = realloc(object->pairs, object->count * sizeof(Pair));
         }
 
-        if (data[*cursor] == ',' && inKey) {
-            inKey = 0;
-        }
-
-        *cursor += 1;
+        object->pairs[object->count - 1] = pair;
     }
+
+    *cursor += 1;
 
     return object;
 }
@@ -211,16 +219,6 @@ Array* parse_array(char* data, int* cursor) {
     array->count = 0;
 
     while (*cursor < strlen(data)) {
-        if (data[*cursor] == ']') {
-            *cursor += 1;
-            break;
-        }
-
-        if (data[*cursor] == ',') {
-            *cursor += 1;
-            continue;
-        }
-
         Pair* pair = parse_type(data, NULL, cursor);
 
         if (pair == NULL) {
@@ -236,6 +234,12 @@ Array* parse_array(char* data, int* cursor) {
 
         array->pairs[array->count] = pair;
         array->count += 1;
+
+        if (data[*cursor] == ']') {
+            *cursor += 1;
+            break;
+        }
+
         *cursor += 1;
     }
 
@@ -288,7 +292,7 @@ Pair* parse_type(char* data, char* key, int* cursor) {
             result->value = value;
             result->type = NUMBER;
             break;
-        } else if (data[*cursor] == '}' || data[*cursor] == ']') {
+        } else if (data[*cursor] == '}' || data[*cursor] == ']' || data[*cursor] == ',') {
             return NULL;
         }
 
